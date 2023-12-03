@@ -58,13 +58,10 @@ fun calculatePartNumber(): Int {
 }
 
 fun checkNumber(numObj: NumberObj): Int {
-    for (row in (numObj.row - 1 .. numObj.row + 1)) {
-        if (!symbolsMap.containsKey(row)) continue
-        for (index in (numObj.start - 1 .. numObj.end + 1)) {
-            if (symbolsMap[row]!!.contains(index)) {
-               return numObj.num.toInt()
-            }
-        }
+    var symbolSet: MutableSet<Int> = mutableSetOf()
+    symbolsMap.toList().filter{ (fst, _) -> fst in (numObj.row-1..numObj.row+1)}.forEach{(_, snd) -> symbolSet.addAll(snd)}
+    if (symbolSet.any{ it in (numObj.start-1..numObj.end+1) }) {
+        return numObj.num.toInt()
     }
     return 0
 }
