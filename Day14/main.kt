@@ -8,7 +8,7 @@ var cols: Int = 0
 var rows: Int = 0
 
 fun main() {
-    var inFile = File("input14.txt")
+    var inFile = File("input.txt")
     inFile.forEachLine{ parseData(it, rows++) }
     for (i in 0..200) {
         tilt() // North
