@@ -6,7 +6,7 @@ data class Dig(var dir: Char, var length: Int, var col: String)
 var digMap: MutableMap<Int,MutableSet<Pair<Int,String>>> = mutableMapOf()
 var digList: MutableList<Pair<Int,Int>> = mutableListOf()
 
-
+// shoelace algorithm and picks theorem
 fun main() {
     var inFile = File("input.txt")
     inFile.forEachLine{ 
