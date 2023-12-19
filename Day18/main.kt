@@ -24,17 +24,16 @@ fun main() {
     var t: MutableList<Dig> = mutableListOf()
     nDigList.forEach{ t.add(Dig(intToDir(it[1][0]), it[0].toInt(radix = 16))) }
     dig(t)
-    println("ready for shoelace")
     shoelace()
 }
 
 fun intToDir(input: Char): Char {
-    when(input) {
-        '0' -> return 'R'
-        '1' -> return 'D'
-        '2' -> return 'L'
-        '3' -> return 'U'
-        else -> return '.'
+    return when(input) {
+        '0' -> 'R'
+        '1' -> 'D'
+        '2' -> 'L'
+        '3' -> 'U'
+        else -> '.'
     }
 }
 
@@ -42,15 +41,13 @@ fun dig(digs: List<Dig>) {
     var prev: Pair<Long,Long> = Pair(0L,0L)
     digCorners.add(prev)
     for (dig in digs) {
-        repeat(dig.length) {
-            digBorders++
-            when(dig.dir) {
-                'R' -> prev = Pair(prev.first, prev.second+1)
-                'L' -> prev = Pair(prev.first, prev.second-1)
-                'U' -> prev = Pair(prev.first-1, prev.second)
-                'D' -> prev = Pair(prev.first+1, prev.second)
-                else -> println("ERROR no such direction")
-            }
+        digBorders += dig.length
+        when(dig.dir) {
+            'R' -> prev = Pair(prev.first, prev.second+dig.length)
+            'L' -> prev = Pair(prev.first, prev.second-dig.length)
+            'U' -> prev = Pair(prev.first-dig.length, prev.second)
+            'D' -> prev = Pair(prev.first+dig.length, prev.second)
+            else -> println("ERROR no such direction")
         }
         digCorners.add(prev)
     }
