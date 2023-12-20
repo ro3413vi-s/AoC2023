@@ -6,12 +6,13 @@ data class Rule(var statement: String, var dest: String)
 var partList: MutableList<xmas> = mutableListOf()
 data class xmas(var x: Int, var m: Int, var a: Int, var s: Int)
 
+var rangeList: MutableList<Pair<String, xmasRanges>> = mutableListOf()
+data class xmasRanges(var x: Pair<Int,Int>, var m: Pair<Int,Int>, var a: Pair<Int,Int>, var s: Pair<Int,Int>)
+
 var accepted: Long = 0L
 
-var combinations: MutableMap<String,Long> = mutableMapOf(x to 1L, m to 1L, a to 1L, s to 1L)
-
 fun main() {
-    var inFile = File("tinput.txt")
+    var inFile = File("input.txt")
     parseWorkflows(inFile)
     parseParts(inFile)
     //println(partList)
@@ -23,17 +24,29 @@ fun main() {
     println(accepted)
 
     // Part 2
-    workflowMap.forEach{ println(it)}
     var x = Pair(1,4000)
     var m = Pair(1,4000)
     var a = Pair(1,4000)
     var s = Pair(1,4000)
-    var next = "in"
-    while(true) {
-        var workflow = workflowMap.get(next)!!
-        next = checkPartInWorkflow2(x,m,a,s, workflow)
+    rangeList.add(Pair("in", xmasRanges(x,m,a,s)))
+    accepted = 0L
+    while(!rangeList.isEmpty()) {
+        var next = rangeList.first()
+        rangeList = rangeList.drop(1).toMutableList()
+        if (next.first == "A") {
+            var t = next.second
+            accepted +=  (t.x.second-t.x.first+1).toLong() * 
+                (t.m.second-t.m.first+1).toLong() * 
+                (t.a.second-t.a.first+1).toLong() * 
+                (t.s.second-t.s.first+1).toLong()
+            continue
+        } else if( next.first == "R" ) {
+            continue
+        } else {
+            checkPartInWorkflow2(next.second, workflowMap.get(next.first)!!)
+        }
     }
-
+    println(accepted)
 }
 
 fun checkPart(part: xmas) {
@@ -72,24 +85,56 @@ fun checkPartInWorkflow(part: xmas, rules: List<Rule>): String {
 
 // Part 2
 
-fun checkPartInWorkflow2(x: IntRange, m: IntRange, a: IntRange, s: IntRange, rules: List<Rule>): String {
+fun checkPartInWorkflow2(xmas: xmasRanges, rules: List<Rule>) {
+    var temp = xmas
     for (rule in rules) {
-        if (rule.statement.isEmpty()) return rule.dest
-        var rp = rule.statement.split('<', '>')
-        var partVal = when(rp[0]) {
-            "x" -> x
-            "m" -> m
-            "a" -> a
-            "s" -> s
-            else -> Int.MAX_VALUE
+        if (rule.statement.isEmpty()) {
+            rangeList.add(Pair(rule.dest, temp))
+            return
         }
-        if('<' in rule.statement) {
-            if (partVal < rp[1].toInt()) return rule.dest
-        } else {
-            if (partVal > rp[1].toInt()) return rule.dest
+        var rp = rule.statement.split('<', '>')
+        when(rp[0]) {
+            "x" -> {
+                var t = checkRange(rule, temp.x)
+                temp.x = t.second
+                rangeList.add(Pair(rule.dest, xmasRanges(t.first, xmas.m, xmas.a, xmas.s)))
+            }
+            "m" -> {
+                var t = checkRange(rule, temp.m)
+                temp.m = t.second
+                rangeList.add(Pair(rule.dest, xmasRanges(xmas.x, t.first, xmas.a, xmas.s)))
+            }
+            "a" -> {
+                var t = checkRange(rule, temp.a)
+                temp.a = t.second
+                rangeList.add(Pair(rule.dest, xmasRanges(xmas.x, xmas.m, t.first, xmas.s)))
+            }
+            "s" -> {
+                var t = checkRange(rule, temp.s)
+                temp.s = t.second
+                rangeList.add(Pair(rule.dest, xmasRanges(xmas.x, xmas.m, xmas.a, t.first)))
+            }
+            else -> throw Exception("wrong stuff")
         }
     }
-    return ""
+}
+
+fun checkRange(rule: Rule, rng: Pair<Int,Int>): Pair<Pair<Int,Int>,Pair<Int,Int>> {
+    var c = rule.statement.split('<', '>')[1].toInt()
+    if('<' in rule.statement) {
+        if (c in rng.first..rng.second) {
+            return Pair(Pair(rng.first, c-1), Pair(c, rng.second))
+        } else if( rng.second < c) {
+            return Pair(rng , Pair(0,0))
+        }
+    } else {
+        if (c in rng.first..rng.second) {
+            return Pair(Pair(c+1, rng.second), Pair(rng.first, c))
+        } else if( rng.second > c) {
+            return Pair(rng, Pair(0,0))
+        }
+    }
+    return Pair(Pair(0,0), rng)
 }
 
 
