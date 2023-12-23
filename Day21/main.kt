@@ -40,7 +40,7 @@ fun main() {
             p1 = p2
             p2 = p3
             p3 = possibleLocations.size
-		}
+        }
         possibleLocations = possibleLocations.map{ getLocationsInf(it) }.flatten().toMutableSet()
         i++
     }
