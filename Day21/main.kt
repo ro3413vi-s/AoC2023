@@ -37,7 +37,7 @@ fun main() {
     var i = 0
     while(p1 == 0) {
         if (i % (rows) == 65) {
-			p1 = p2
+            p1 = p2
             p2 = p3
             p3 = possibleLocations.size
 		}
